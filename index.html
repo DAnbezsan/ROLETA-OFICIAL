@@ -100,7 +100,7 @@
       const SPIN_DURATION_MS = 4200;
       const OWNER_WHATSAPP = "5577981633924";
       const ADMIN_PHONE = "77998652620";
-      const ADMIN_PASSWORD = "admin123"; // <-- SENHA PARA RESETAR. Altere se desejar.
+      const ADMIN_PASSWORD = "adm0832"; // <-- SENHA PARA RESETAR.
       // --- END OF CONSTANTS ---
 
       // --- START OF SPINNER MARKER COMPONENT ---
@@ -397,7 +397,10 @@
             setWonPrize(winningPrize);
             setIsSpinning(false);
             setCurrentIndex(prev => prev + 1);
-            if (userPhone !== ADMIN_PHONE) {
+            
+            if (userPhone === ADMIN_PHONE) {
+              setWinnersList(prev => [...prev, {name: 'ADM TESTE', phone: userPhone, prizeName: winningPrize.name}]);
+            } else {
                 setUsedPhones(prev => [...prev, userPhone]);
                 setWinnersList(prev => [...prev, {name: userName, phone: userPhone, prizeName: winningPrize.name}]);
             }
