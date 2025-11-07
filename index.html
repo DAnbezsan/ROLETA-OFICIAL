@@ -190,7 +190,7 @@
                     <g key={prize.id}>
                       <path d={pathData} fill={isGold ? 'url(#gold-grad)' : 'url(#black-grad)'} stroke="#0b0b0b" strokeWidth="1.6" />
                       <defs><path id={textPathId} d={textPathData} /></defs>
-                      <text dy={-4} fill={textColor} fontSize="14" fontWeight="bold" fontFamily="Arial, Helvetica, sans-serif" style={{ userSelect: 'none', textShadow: isGold ? 'none' : '0 0 5px rgba(255,215,0,0.5)' }}>
+                      <text dy={-4} fill={textColor} fontSize="13" fontWeight="bold" fontFamily="Arial, Helvetica, sans-serif" style={{ userSelect: 'none', textShadow: isGold ? 'none' : '0 0 5px rgba(255,215,0,0.5)' }}>
                         <textPath href={`#${textPathId}`} startOffset="50%" textAnchor="middle" dominantBaseline="middle">{prize.name}</textPath>
                       </text>
                     </g>
