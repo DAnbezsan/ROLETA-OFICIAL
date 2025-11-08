@@ -209,11 +209,11 @@
       // --- END OF SPINNER WHEEL COMPONENT ---
 
       // --- START OF PRIZE MODAL COMPONENT ---
-      const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone }) => {
+      const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone, prizeSequenceNumber }) => { // Adicionado prizeSequenceNumber aqui
         if (!isOpen || !prize) return null;
 
         const handleWhatsAppShare = () => {
-          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.name}\n📱 Telefone: ${userPhone}`;
+          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.name}\nNúmero do Prêmio na Sequência: ${prizeSequenceNumber}\n📱 Telefone: ${userPhone}`; // Mensagem modificada
           const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(message)}`;
           window.open(whatsappUrl, "_blank");
         };
@@ -459,7 +459,14 @@
                 </div>
               )}
             </footer>
-            <PrizeModal isOpen={!!wonPrize} prize={wonPrize} onClose={() => setWonPrize(null)} userName={userName} userPhone={userPhone} />
+            <PrizeModal 
+              isOpen={!!wonPrize} 
+              prize={wonPrize} 
+              onClose={() => setWonPrize(null)} 
+              userName={userName} 
+              userPhone={userPhone} 
+              prizeSequenceNumber={currentIndex + 1} // Passando o número do prêmio na sequência
+            />
             <InfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} onSave={handleSaveInfo} />
           </div>
         );
@@ -474,4 +481,3 @@
     </script>
 </body>
 </html>
-
