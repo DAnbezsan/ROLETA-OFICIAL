@@ -65,21 +65,18 @@
 
     <script>
       // ==========================================================
-      // ADICIONE AQUI SEU ID DO BIN E A CHAVE SECRETA DO JSONBIN.IO
+      // <<<< ADICIONE AQUI SEU ID DO BIN E A CHAVE SECRETA DO JSONBIN.IO >>>>
       // WARNING: Em produção, a chave secreta NÃO deve ser exposta diretamente no frontend!
       // Considere usar um proxy de backend para lidar com chaves de API com segurança.
       // ==========================================================
-      window.JSONBIN_BIN_ID = "69100d6043b1c97be9a1c6b9"; // SUBSTITUA PELO SEU BIN ID
-      window.JSONBIN_SECRET_KEY = "$2a$10$IbtalLrG92ZhBhwraBY77eDcAIupyqqGOl1L/7a8IJBnUOmTGNogW"; // SUBSTITUA PELA SUA CHAVE SECRETA (Master Key)
+      window.JSONBIN_BIN_ID = "69100d6043b1c97be9a1c6b9"; // <<<<<<<<<<<<<<<< SEU ID DO BIN AQUI
+      window.JSONBIN_SECRET_KEY = "$2a$10$IbtalLrG92ZhBhwraBY77eDcAIupyqqGOl1L/7a8IJBnUOmTGNogW"; // <<<<<<<<<<<< SUA MASTER KEY AQUI
     </script>
 
     <script type="text/babel">
       const { useState, useCallback, useEffect, useRef } = React;
 
-      // --- START OF TYPES ---
-      // Babel Standalone doesn't fully support TS type imports across files
-      // so these are redefined or simplified to work within a single script tag.
-      // In a multi-file setup with a build step, you would import these from types.ts
+      // --- START OF TYPES (consolidated from types.ts) ---
       interface Prize {
         id: number;
         name: string;
@@ -98,8 +95,10 @@
       }
       // --- END OF TYPES ---
 
-      // --- START OF CONSTANTS ---
-      const PRIZES = [
+      // --- START OF CONSTANTS (consolidated from constants.ts) ---
+      // Valores lidos de window.JSONBIN_BIN_ID/SECRET_KEY se estiverem definidos,
+      // caso contrário, usam os valores padrão (que devem ser substituídos).
+      const PRIZES: Prize[] = [
         { id: 1, name: 'DESIGN 50%', emoji: '🎉' },
         { id: 2, name: 'FIO A FIO 50%', emoji: '✨' },
         { id: 3, name: 'SHADOW L. 50%', emoji: '💖' },
@@ -108,7 +107,7 @@
         { id: 6, name: 'SHADOWL 100%', emoji: '🏆' },
       ];
 
-      const PRIZES_SEQUENCE = [
+      const PRIZES_SEQUENCE: string[] = [
         'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%',
         'FIO A FIO 50%', 'FIO A FIO 50%', 'FIO A FIO 50%',
         'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%',
@@ -136,12 +135,11 @@
       const ADMIN_PHONE = "77998652620";
       const ADMIN_PASSWORD = "adm0832";
 
-      // JsonBin configuration - these read from window globals if set, otherwise use defaults
-      const JSONBIN_BIN_ID = window.JSONBIN_BIN_ID || "YOUR_DEFAULT_BIN_ID";
-      const JSONBIN_SECRET_KEY = window.JSONBIN_SECRET_KEY || "YOUR_DEFAULT_SECRET_KEY";
+      const JSONBIN_BIN_ID = window.JSONBIN_BIN_ID || "YOUR_DEFAULT_BIN_ID"; 
+      const JSONBIN_SECRET_KEY = window.JSONBIN_SECRET_KEY || "YOUR_DEFAULT_SECRET_KEY"; 
       // --- END OF CONSTANTS ---
 
-      // --- START OF SPINNER MARKER COMPONENT ---
+      // --- START OF SPINNER MARKER COMPONENT (consolidated from components/SpinnerMarker.tsx) ---
       const SpinnerMarker = () => {
         return (
           <div className="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 z-10" style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))' }}>
@@ -161,14 +159,14 @@
       };
       // --- END OF SPINNER MARKER COMPONENT ---
 
-      // --- START OF SPINNER WHEEL COMPONENT ---
+      // --- START OF SPINNER WHEEL COMPONENT (consolidated from components/SpinnerWheel.tsx) ---
       const SpinnerWheel = ({ prizes, rotation, spinDuration }) => {
         const numPrizes = prizes.length;
         const anglePerSegment = 360 / numPrizes;
         const radius = 160;
         const viewBoxSize = radius * 2 + 40;
 
-        const getCoordinatesForAngle = (angle, r = radius) => {
+        const getCoordinatesForAngle = (angle: number, r: number = radius): [number, number] => {
           const rad = (angle * Math.PI) / 180;
           const x = r * Math.cos(rad);
           const y = r * Math.sin(rad);
@@ -246,7 +244,7 @@
       };
       // --- END OF SPINNER WHEEL COMPONENT ---
 
-      // --- START OF PRIZE MODAL COMPONENT ---
+      // --- START OF PRIZE MODAL COMPONENT (consolidated from components/PrizeModal.tsx) ---
       const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone }) => {
         if (!isOpen || !prize) return null;
 
@@ -279,7 +277,7 @@
       };
       // --- END OF PRIZE MODAL COMPONENT ---
 
-      // --- START OF APP COMPONENT ---
+      // --- START OF APP COMPONENT (consolidated from App.tsx) ---
       const InfoModal = ({ isOpen, onSave, onClose }) => {
         const [name, setName] = useState('');
         const [phone, setPhone] = useState('');
@@ -348,7 +346,7 @@
       };
 
       // Helper to get item from local storage, with a warning for parsing errors
-      const getLocalStorageItem = (key, defaultValue) => {
+      const getLocalStorageItem = <T,>(key: string, defaultValue: T): T => {
         try {
           const item = window.localStorage.getItem(key);
           return item ? JSON.parse(item) : defaultValue;
@@ -358,29 +356,33 @@
         }
       };
 
-      const App = () => {
+      const App: React.FC = () => {
         const [isSpinning, setIsSpinning] = useState(false);
         const [rotation, setRotation] = useState(0);
-        const [wonPrize, setWonPrize] = useState(null);
+        const [wonPrize, setWonPrize] = useState<Prize | null>(null);
         const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
         // User-specific data, can be stored locally for convenience
-        const [userName, setUserName] = useState(() => getLocalStorageItem('userName', null));
-        const [userPhone, setUserPhone] = useState(() => getLocalStorageItem('wheelPhone', null));
+        const [userName, setUserName] = useState<string | null>(() => getLocalStorageItem('userName', null));
+        const [userPhone, setUserPhone] = useState<string | null>(() => getLocalStorageItem('wheelPhone', null));
 
         // Global state, to be synced with JsonBin
-        const [currentIndex, setCurrentIndex] = useState(null); // Null until loaded from JsonBin
-        const [usedPhones, setUsedPhones] = useState(null); // Null until loaded from JsonBin
-        const [winnersList, setWinnersList] = useState(null); // Null until loaded from JsonBin
+        const [currentIndex, setCurrentIndex] = useState<number | null>(null); // Null until loaded from JsonBin
+        const [usedPhones, setUsedPhones] = useState<string[] | null>(null); // Null until loaded from JsonBin
+        const [winnersList, setWinnersList] = useState<Winner[] | null>(null); // Null until loaded from JsonBin
 
-        const [notification, setNotification] = useState(null);
-        const [isSyncing, setIsSyncing] = useState(true); // Tracks initial load and subsequent saves
-        const [remoteError, setRemoteError] = useState(null);
+        const [notification, setNotification] = useState<string | null>(null);
+        const [isSyncing, setIsSyncing] = useState(true); // Tracks initial load and reset operations
+        const [remoteError, setRemoteError] = useState<string | null>(null);
 
         // Ref to track if initial remote fetch has been attempted
         const hasFetchedRemoteRef = useRef(false);
+        // Ref to prevent multiple concurrent save operations from firing JsonBin API too fast
+        const isSavingRemoteRef = useRef(false);
+        // Ref to hold the debounce timer ID
+        const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-        const showNotification = (message) => {
+        const showNotification = (message: string) => {
           setNotification(message);
           setTimeout(() => setNotification(null), 3000);
         };
@@ -389,8 +391,8 @@
 
         // Function to fetch data from JsonBin
         const fetchRemoteState = useCallback(async () => {
-          setIsSyncing(true);
-          setRemoteError(null);
+          setIsSyncing(true); // Indicate that a sync operation (fetch) is starting
+          setRemoteError(null); // Clear any previous remote errors
           try {
             const response = await fetch(`${API_URL}/latest`, {
               headers: {
@@ -399,8 +401,8 @@
             });
 
             if (!response.ok) {
-              const errorText = await response.text(); // Capture detailed error message from response body
-              throw new Error(`Erro ao buscar dados remotos: ${response.status} - ${errorText}`);
+              const errorText = await response.text(); 
+              throw new Error(`Erro ao buscar dados remotos: ${response.status} - ${response.statusText || 'Erro desconhecido'} - ${errorText}`);
             }
 
             const data = await response.json();
@@ -410,45 +412,51 @@
             setUsedPhones(latestData.usedPhones || []);
             setWinnersList(latestData.winnersList || []);
             showNotification('Dados sincronizados com sucesso!');
-          } catch (error) {
+          } catch (error: any) {
             console.error('Erro JsonBin (leitura):', error);
-            setRemoteError('Não foi possível sincronizar com o servidor. Usando dados locais.');
+            setRemoteError(`Não foi possível sincronizar com o servidor: ${error.message}. Usando dados locais.`);
             showNotification('Modo offline: Falha ao carregar dados do servidor.');
             // Fallback to local storage if remote fails
             setCurrentIndex(getLocalStorageItem('currentIndex', 0));
             setUsedPhones(getLocalStorageItem('usedPhones', []));
             setWinnersList(getLocalStorageItem('winnersList', []));
           } finally {
-            setIsSyncing(false);
+            setIsSyncing(false); // Indicate that the sync operation (fetch) has finished
           }
         }, [API_URL, JSONBIN_SECRET_KEY]);
 
-        // Function to save data to JsonBin
-        const saveRemoteState = useCallback(async (dataToSave) => {
-          setIsSyncing(true);
-          setRemoteError(null);
-          try {
-            const response = await fetch(API_URL, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_SECRET_KEY,
-              },
-              body: JSON.stringify(dataToSave),
-            });
-
-            if (!response.ok) {
-              const errorText = await response.text(); // Capture detailed error message from response body
-              throw new Error(`Erro ao salvar dados remotos: ${response.status} - ${errorText}`);
+        // Function to save data to JsonBin, protected by isSavingRemoteRef
+        const saveRemoteState = useCallback(async (dataToSave: { currentIndex: number; usedPhones: string[]; winnersList: Winner[] }) => {
+            // If a save operation is already in progress, just return
+            if (isSavingRemoteRef.current) {
+                return;
             }
-            showNotification('Dados salvos no servidor.');
-          } catch (error) {
-            console.error('Erro JsonBin (escrita):', error);
-            setRemoteError('Não foi possível salvar dados no servidor. Dados salvos localmente.');
-            showNotification('Modo offline: Falha ao salvar dados no servidor.');
-          } finally {
-            setIsSyncing(false);
-          }
+
+            isSavingRemoteRef.current = true; // Set flag to indicate saving is in progress
+            setRemoteError(null); // Clear any previous remote errors
+
+            try {
+              const response = await fetch(API_URL, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Master-Key': JSONBIN_SECRET_KEY,
+                },
+                body: JSON.stringify(dataToSave),
+              });
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erro ao salvar dados remotos: ${response.status} - ${response.statusText || 'Erro desconhecido'} - ${errorText}`);
+              }
+              showNotification('Dados salvos no servidor.');
+            } catch (error: any) {
+              console.error('Erro JsonBin (escrita):', error);
+              setRemoteError(`Não foi possível salvar dados no servidor: ${error.message}. Dados salvos localmente.`);
+              showNotification('Modo offline: Falha ao salvar dados no servidor.');
+            } finally {
+              isSavingRemoteRef.current = false; // Reset flag after operation
+            }
         }, [API_URL, JSONBIN_SECRET_KEY]);
 
 
@@ -460,9 +468,10 @@
           }
         }, [fetchRemoteState]);
 
-        // Effect to save to localStorage and JsonBin whenever global state changes
+        // Effect to save to localStorage and trigger remote save whenever global state changes
         useEffect(() => {
           if (currentIndex !== null && usedPhones !== null && winnersList !== null) {
+            // Always save to localStorage immediately for responsiveness and fallback
             try {
               window.localStorage.setItem('currentIndex', JSON.stringify(currentIndex));
               window.localStorage.setItem('usedPhones', JSON.stringify(usedPhones));
@@ -471,20 +480,38 @@
               else window.localStorage.removeItem('userName');
               if (userPhone) window.localStorage.setItem('wheelPhone', JSON.stringify(userPhone));
               else window.localStorage.removeItem('wheelPhone');
-              
-              saveRemoteState({ currentIndex, usedPhones, winnersList });
             } catch (error) {
-              console.error('Erro ao salvar no localStorage ou JsonBin', error);
-              setRemoteError('Erro ao salvar dados localmente ou remotamente.');
-              showNotification('Erro: Falha ao persistir dados.');
+              console.error('Erro ao salvar no localStorage:', error);
+              setRemoteError('Erro ao salvar dados localmente.');
+              showNotification('Erro: Falha ao persistir dados localmente.');
+            }
+
+            // Only attempt to save remotely AFTER initial fetch has completed.
+            // Use a debounce to prevent excessive API calls for rapid state changes.
+            if (hasFetchedRemoteRef.current) { 
+                const dataToSave = { currentIndex, usedPhones, winnersList };
+                
+                if (saveTimerRef.current) {
+                  clearTimeout(saveTimerRef.current);
+                }
+                saveTimerRef.current = setTimeout(() => {
+                    saveRemoteState(dataToSave);
+                }, 500); // Debounce by 500ms (adjust as needed)
+
+                return () => {
+                  if (saveTimerRef.current) {
+                    clearTimeout(saveTimerRef.current); // Cleanup function for the timer
+                  }
+                };
             }
           }
-        }, [currentIndex, usedPhones, userName, userPhone, winnersList, saveRemoteState]);
+        }, [currentIndex, usedPhones, userName, userPhone, winnersList, saveRemoteState, hasFetchedRemoteRef]);
 
         const handleReset = () => {
           const password = prompt("Para resetar, digite a senha de administrador:");
           if (password === ADMIN_PASSWORD) {
             if (window.confirm('Tem certeza que deseja resetar a roleta? Todos os dados (giros, telefones, ganhadores) serão apagados.')) {
+              setIsSyncing(true); // Indicate reset operation is syncing
               // Clear local storage
               localStorage.removeItem('currentIndex');
               localStorage.removeItem('usedPhones');
@@ -500,10 +527,11 @@
               setUserPhone(null);
 
               // Save empty state to JsonBin
-              saveRemoteState({ currentIndex: 0, usedPhones: [], winnersList: [] });
+              saveRemoteState({ currentIndex: 0, usedPhones: [], winnersList: [] }).finally(() => {
+                  setIsSyncing(false); // Reset sync status after save attempt
+              });
 
               alert('Roleta resetada com sucesso! Os dados foram limpos localmente e no servidor.');
-              // No need to reload, state is already reset.
             }
           } else if (password !== null) { // User didn't click cancel
             alert('Senha incorreta!');
@@ -511,7 +539,18 @@
         };
 
         const startSpin = useCallback(() => {
-          if (isSpinning || !userPhone || !userName || currentIndex === null || usedPhones === null || winnersList === null) return;
+          // Block spin if:
+          // 1. Another spin is in progress
+          // 2. User info is missing
+          // 3. Global state hasn't loaded yet
+          // 4. A global sync operation (like initial fetch or reset) is in progress
+          // 5. A save operation is already ongoing (via isSavingRemoteRef)
+          if (isSpinning || !userPhone || !userName || currentIndex === null || usedPhones === null || winnersList === null || isSyncing || isSavingRemoteRef.current) {
+              if (isSyncing || isSavingRemoteRef.current) showNotification('Aguarde a sincronização de dados...');
+              return;
+          }
+
+          // Check if phone has already participated (for non-admin users)
           if (userPhone !== ADMIN_PHONE && usedPhones.includes(userPhone)) {
             alert('Este número de telefone já participou da promoção.');
             return;
@@ -528,9 +567,8 @@
           }
           
           const segmentAngle = 360 / PRIZES.length;
-          // Calculate the angle to land on the center of the winning segment
           const winningAngle = 360 - (winningPrizeIndex * segmentAngle + segmentAngle / 2);
-          const randomRotations = 5 + Math.floor(Math.random() * 3); // Ensure multiple full rotations
+          const randomRotations = 5 + Math.floor(Math.random() * 3); 
           const finalRotation = 360 * randomRotations + winningAngle;
 
           setRotation(prev => prev + finalRotation);
@@ -538,7 +576,7 @@
           setTimeout(() => {
             setWonPrize(winningPrize);
             setIsSpinning(false);
-            setCurrentIndex(prev => (prev !== null ? prev + 1 : 1)); // Ensure prev is not null
+            setCurrentIndex(prev => (prev !== null ? prev + 1 : 1)); 
             
             if (userPhone === ADMIN_PHONE) {
               setWinnersList(prev => [...(prev || []), {name: 'ADM TESTE', phone: userPhone, prizeName: winningPrize.name}]);
@@ -547,14 +585,20 @@
                 setWinnersList(prev => [...(prev || []), {name: userName, phone: userPhone, prizeName: winningPrize.name}]);
             }
           }, SPIN_DURATION_MS + 200);
-        }, [isSpinning, userName, userPhone, currentIndex, usedPhones, winnersList]);
+        }, [isSpinning, userName, userPhone, currentIndex, usedPhones, winnersList, isSyncing, isSavingRemoteRef]); // Added isSavingRemoteRef to dependencies
 
         const handleSpinClick = () => {
-          if (isSyncing || currentIndex === null || usedPhones === null || winnersList === null) {
+          // Block spin if global state is not fully loaded/synced
+          if (currentIndex === null || usedPhones === null || winnersList === null) {
+            showNotification('Aguarde o carregamento dos dados da roleta...');
+            return;
+          }
+          if (isSyncing || isSavingRemoteRef.current) { // If an explicit global sync (fetch or reset) or a save is in progress
             showNotification('Aguarde a sincronização de dados...');
             return;
           }
-          if (isSpinning) return;
+          if (isSpinning) return; // If another spin is in progress
+          
           if (userPhone && userName) {
             startSpin();
           } else {
@@ -562,7 +606,7 @@
           }
         };
 
-        const handleSaveInfo = ({ name, phone }) => {
+        const handleSaveInfo = ({ name, phone }: UserInfo) => {
           setUserName(name);
           setUserPhone(phone);
           setIsInfoModalOpen(false);
@@ -595,8 +639,8 @@
               <SpinnerWheel prizes={PRIZES} rotation={rotation} spinDuration={SPIN_DURATION_MS} />
             </main>
             <footer className="mt-8 text-center">
-              <button onClick={handleSpinClick} disabled={isSpinning || isSyncing || !isAppDataLoaded} className="px-10 py-4 text-xl font-bold text-black bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg hover:from-amber-500 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-70 transition-all duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100" style={{boxShadow: '0 8px 20px rgba(255,215,0,0.22)'}}>
-                {isSyncing ? 'Sincronizando...' : isSpinning ? 'Girando...' : 'GIRAR'}
+              <button onClick={handleSpinClick} disabled={isSpinning || isSyncing || !isAppDataLoaded || isSavingRemoteRef.current} className="px-10 py-4 text-xl font-bold text-black bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg hover:from-amber-500 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-70 transition-all duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100" style={{boxShadow: '0 8px 20px rgba(255,215,0,0.22)'}}>
+                {isSyncing || isSavingRemoteRef.current ? 'Sincronizando...' : isSpinning ? 'Girando...' : 'GIRAR'}
               </button>
               {userPhone === ADMIN_PHONE && isAppDataLoaded && (
                 <div className="mt-4 p-4 bg-gray-900 bg-opacity-50 rounded-lg w-full max-w-md">
@@ -604,7 +648,7 @@
                     <p className="text-amber-400 font-semibold text-lg">
                       Giros: <span className="text-white text-xl">{currentIndex}</span>
                     </p>
-                    <button onClick={handleReset} className="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg shadow-md hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-500 transition-colors duration-300" disabled={isSyncing}>
+                    <button onClick={handleReset} className="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg shadow-md hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-500 transition-colors duration-300" disabled={isSyncing || isSavingRemoteRef.current}>
                       Resetar Roleta
                     </button>
                   </div>
@@ -630,9 +674,6 @@
           <App />
         </React.StrictMode>
       );
-
     </script>
 </body>
 </html>
-
-
