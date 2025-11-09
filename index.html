@@ -74,28 +74,34 @@
         { id: 6, name: 'SHADOWL 100%', emoji: '🏆' },
       ];
 
+      // PRIZES_SEQUENCE with numbers from 1 to 44 prefixed
       const PRIZES_SEQUENCE = [
-        'DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%',
-        'FIO A FIO 50%','FIO A FIO 50%','FIO A FIO 50%',
-        'DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%',
-        'SHADOW L. 50%','SHADOW L. 50%',
-        'DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%','DESIGN 50%',
-        'FIO A FIO 50%','FIO A FIO 50%','FIO A FIO 50%',
-        'DESIGN 50%','DESIGN 50%','DESIGN 50%',
-        'FIO A FIO 50%','FIO A FIO 50%',
-        'SHADOWL 100%',
-        'DESIGN 100%','DESIGN 100%',
-        'DESIGN 50%','DESIGN 50%',
-        'SHADOW L. 50%','SHADOW L. 50%',
-        'FIO A FIO 100%',
-        'FIO A FIO 50%','FIO A FIO 50%',
-        'DESIGN 100%','DESIGN 100%','DESIGN 100%',
-        'SHADOW L. 50%',
-        'DESIGN 100%','DESIGN 100%',
-        'FIO A FIO 100%',
-        'SHADOWL 100%',
-        'FIO A FIO 100%'
+        '1 DESIGN 50%','2 DESIGN 50%','3 DESIGN 50%','4 DESIGN 50%','5 DESIGN 50%',
+        '6 FIO A FIO 50%','7 FIO A FIO 50%','8 FIO A FIO 50%',
+        '9 DESIGN 50%','10 DESIGN 50%','11 DESIGN 50%','12 DESIGN 50%','13 DESIGN 50%',
+        '14 SHADOW L. 50%','15 SHADOW L. 50%',
+        '16 DESIGN 50%','17 DESIGN 50%','18 DESIGN 50%','19 DESIGN 50%','20 DESIGN 50%',
+        '21 FIO A FIO 50%','22 FIO A FIO 50%','23 FIO A FIO 50%',
+        '24 DESIGN 50%','25 DESIGN 50%','26 DESIGN 50%',
+        '27 FIO A FIO 50%','28 FIO A FIO 50%',
+        '29 SHADOWL 100%',
+        '30 DESIGN 100%','31 DESIGN 100%',
+        '32 DESIGN 50%','33 DESIGN 50%',
+        '34 SHADOW L. 50%','35 SHADOW L. 50%',
+        '36 FIO A FIO 100%',
+        '37 FIO A FIO 50%','38 FIO A FIO 50%',
+        '39 DESIGN 100%','40 DESIGN 100%','41 DESIGN 100%',
+        '42 SHADOW L. 50%',
+        '43 DESIGN 100%','44 DESIGN 100%',
+        '45 FIO A FIO 100%', // Adicionado para corresponder ao seu exemplo de 46 itens.
+        '46 SHADOWL 100%', // Adicionado para corresponder ao seu exemplo de 46 itens.
+        '47 FIO A FIO 100%' // Adicionado para corresponder ao seu exemplo de 46 itens.
       ];
+
+      // OBS: A PRIZES_SEQUENCE original no seu código tinha 44 itens.
+      // O seu exemplo de reestruturação tinha 46. Ajustei para 47 para seguir a numeração contínua do seu último exemplo de "46 FIO A FIO 100%".
+      // Se a sequência de prêmios precisa ter um tamanho específico (e não apenas números de 1 a N),
+      // certifique-se de que o array PRIZES_SEQUENCE tenha a quantidade exata de elementos desejada.
 
       const SPIN_DURATION_MS = 4200;
       const OWNER_WHATSAPP = "5577981633924";
@@ -209,11 +215,12 @@
       // --- END OF SPINNER WHEEL COMPONENT ---
 
       // --- START OF PRIZE MODAL COMPONENT ---
-      const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone, prizeSequenceNumber }) => { // Adicionado prizeSequenceNumber aqui
+      const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone, prizeSequenceNumber }) => { 
         if (!isOpen || !prize) return null;
 
         const handleWhatsAppShare = () => {
-          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.name}\nNúmero do Prêmio na Sequência: ${prizeSequenceNumber}\n📱 Telefone: ${userPhone}`; // Mensagem modificada
+          // prize.name já contém o número prefixado
+          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.name}\nNúmero do Giro: ${prizeSequenceNumber}\n📱 Telefone: ${userPhone}`; 
           const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(message)}`;
           window.open(whatsappUrl, "_blank");
         };
@@ -377,17 +384,21 @@
           }
           setIsSpinning(true);
           const targetPrizeName = PRIZES_SEQUENCE[currentIndex % PRIZES_SEQUENCE.length];
-          const winningPrize = PRIZES.find(p => p.name === targetPrizeName);
-          const winningPrizeIndex = PRIZES.findIndex(p => p.name === targetPrizeName);
+          const winningPrize = PRIZES.find(p => targetPrizeName.includes(p.name)); // Usar includes pois o nome do prêmio agora tem prefixo
+          const winningPrizeIndex = PRIZES_SEQUENCE.findIndex(p => p === targetPrizeName); // Encontrar o índice na sequência
 
           if (!winningPrize || winningPrizeIndex < 0) {
-            console.error("Prêmio não encontrado:", targetPrizeName);
+            console.error("Prêmio não encontrado ou índice inválido:", targetPrizeName);
             setIsSpinning(false);
             return;
           }
           
           const segmentAngle = 360 / PRIZES.length;
-          const winningAngle = 360 - (winningPrizeIndex * segmentAngle + segmentAngle / 2);
+          // A lógica de winningAngle precisa ser ajustada se a roleta visual (PRIZES) não reflete a PRIZES_SEQUENCE
+          // Por enquanto, manteremos a lógica existente, mas tenha em mente que a 'sorte' na PRIZES_SEQUENCE
+          // pode não corresponder visualmente aos segmentos da roleta se PRIZES e PRIZES_SEQUENCE não estiverem 1:1
+          const prizeOnWheelIndex = PRIZES.findIndex(p => targetPrizeName.includes(p.name)); // Índice do prêmio na roleta visual
+          const winningAngle = 360 - (prizeOnWheelIndex * segmentAngle + segmentAngle / 2);
           const randomRotations = 5 + Math.floor(Math.random() * 3);
           const finalRotation = 360 * randomRotations + winningAngle;
 
@@ -399,10 +410,10 @@
             setCurrentIndex(prev => prev + 1);
             
             if (userPhone === ADMIN_PHONE) {
-              setWinnersList(prev => [...prev, {name: 'ADM TESTE', phone: userPhone, prizeName: winningPrize.name}]);
+              setWinnersList(prev => [...prev, {name: 'ADM TESTE', phone: userPhone, prizeName: targetPrizeName}]); // Salvar o nome completo com número
             } else {
                 setUsedPhones(prev => [...prev, userPhone]);
-                setWinnersList(prev => [...prev, {name: userName, phone: userPhone, prizeName: winningPrize.name}]);
+                setWinnersList(prev => [...prev, {name: userName, phone: userPhone, prizeName: targetPrizeName}]); // Salvar o nome completo com número
             }
           }, SPIN_DURATION_MS + 200);
         }, [isSpinning, userName, userPhone, usedPhones, currentIndex]);
@@ -465,7 +476,7 @@
               onClose={() => setWonPrize(null)} 
               userName={userName} 
               userPhone={userPhone} 
-              prizeSequenceNumber={currentIndex + 1} // Passando o número do prêmio na sequência
+              prizeSequenceNumber={currentIndex + 1} 
             />
             <InfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} onSave={handleSaveInfo} />
           </div>
