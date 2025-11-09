@@ -76,7 +76,7 @@
     <script type="text/babel">
       const { useState, useCallback, useEffect, useRef } = React;
 
-      // --- START OF TYPES (consolidated from types.ts) ---
+      // --- START OF TYPES (consolidated) ---
       interface Prize {
         id: number;
         name: string;
@@ -95,9 +95,7 @@
       }
       // --- END OF TYPES ---
 
-      // --- START OF CONSTANTS (consolidated from constants.ts) ---
-      // Valores lidos de window.JSONBIN_BIN_ID/SECRET_KEY se estiverem definidos,
-      // caso contrário, usam os valores padrão (que devem ser substituídos).
+      // --- START OF CONSTANTS (consolidated) ---
       const PRIZES: Prize[] = [
         { id: 1, name: 'DESIGN 50%', emoji: '🎉' },
         { id: 2, name: 'FIO A FIO 50%', emoji: '✨' },
@@ -135,11 +133,12 @@
       const ADMIN_PHONE = "77998652620";
       const ADMIN_PASSWORD = "adm0832";
 
+      // JsonBin configuration - these read from window globals if set, otherwise use defaults
       const JSONBIN_BIN_ID = window.JSONBIN_BIN_ID || "YOUR_DEFAULT_BIN_ID"; 
       const JSONBIN_SECRET_KEY = window.JSONBIN_SECRET_KEY || "YOUR_DEFAULT_SECRET_KEY"; 
       // --- END OF CONSTANTS ---
 
-      // --- START OF SPINNER MARKER COMPONENT (consolidated from components/SpinnerMarker.tsx) ---
+      // --- START OF SPINNER MARKER COMPONENT (consolidated) ---
       const SpinnerMarker = () => {
         return (
           <div className="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 z-10" style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))' }}>
@@ -159,7 +158,7 @@
       };
       // --- END OF SPINNER MARKER COMPONENT ---
 
-      // --- START OF SPINNER WHEEL COMPONENT (consolidated from components/SpinnerWheel.tsx) ---
+      // --- START OF SPINNER WHEEL COMPONENT (consolidated) ---
       const SpinnerWheel = ({ prizes, rotation, spinDuration }) => {
         const numPrizes = prizes.length;
         const anglePerSegment = 360 / numPrizes;
@@ -244,7 +243,7 @@
       };
       // --- END OF SPINNER WHEEL COMPONENT ---
 
-      // --- START OF PRIZE MODAL COMPONENT (consolidated from components/PrizeModal.tsx) ---
+      // --- START OF PRIZE MODAL COMPONENT (consolidated) ---
       const PrizeModal = ({ isOpen, prize, onClose, userName, userPhone }) => {
         if (!isOpen || !prize) return null;
 
@@ -277,7 +276,7 @@
       };
       // --- END OF PRIZE MODAL COMPONENT ---
 
-      // --- START OF APP COMPONENT (consolidated from App.tsx) ---
+      // --- START OF APP COMPONENT (consolidated) ---
       const InfoModal = ({ isOpen, onSave, onClose }) => {
         const [name, setName] = useState('');
         const [phone, setPhone] = useState('');
