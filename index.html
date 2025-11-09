@@ -638,8 +638,8 @@
               <SpinnerWheel prizes={PRIZES} rotation={rotation} spinDuration={SPIN_DURATION_MS} />
             </main>
             <footer className="mt-8 text-center">
-              <button onClick={handleSpinClick} disabled={isSpinning || isSyncing || !isAppDataLoaded || isSavingRemoteRef.current} className="px-10 py-4 text-xl font-bold text-black bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg hover:from-amber-500 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-70 transition-all duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100" style={{boxShadow: '0 8px 20px rgba(255,215,0,0.22)'}}>
-                {isSyncing || isSavingRemoteRef.current ? 'Sincronizando...' : isSpinning ? 'Girando...' : 'GIRAR'}
+              <button onClick={handleSpinClick} disabled={isSpinning || isSyncing || !isAppDataLoaded} className="px-10 py-4 text-xl font-bold text-black bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg hover:from-amber-500 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-70 transition-all duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transform hover:scale-105 disabled:scale-100" style={{boxShadow: '0 8px 20px rgba(255,215,0,0.22)'}}>
+                {isSyncing ? 'Sincronizando...' : isSpinning ? 'Girando...' : 'GIRAR'}
               </button>
               {userPhone === ADMIN_PHONE && isAppDataLoaded && (
                 <div className="mt-4 p-4 bg-gray-900 bg-opacity-50 rounded-lg w-full max-w-md">
@@ -647,7 +647,7 @@
                     <p className="text-amber-400 font-semibold text-lg">
                       Giros: <span className="text-white text-xl">{currentIndex}</span>
                     </p>
-                    <button onClick={handleReset} className="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg shadow-md hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-500 transition-colors duration-300" disabled={isSyncing || isSavingRemoteRef.current}>
+                    <button onClick={handleReset} className="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg shadow-md hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-500 transition-colors duration-300" disabled={isSyncing}>
                       Resetar Roleta
                     </button>
                   </div>
