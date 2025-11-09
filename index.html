@@ -70,7 +70,7 @@
       // Considere usar um proxy de backend para lidar com chaves de API com segurança.
       // ==========================================================
       window.JSONBIN_BIN_ID = "69100d6043b1c97be9a1c6b9"; // <<<<<<<<<<<<<<<< SEU ID DO BIN AQUI
-      window.JSONBIN_SECRET_KEY = "$2a$10$IbtalLrG92ZhBhwraBY77eDcAIupyqqGOl1L/7a8IJBnUOmTGNogW"; // <<<<<<<<<<<< SUA MASTER KEY AQUI
+      window.JSONBIN_SECRET_KEY = "$2a$10$RxtN.VwYLRsGcmoCji08oeL2di9W0D4tyrBZe/vIV77N665ALQ9Vi"; // <<<<<<<<<<<< SUA MASTER KEY AQUI
     </script>
 
     <script type="text/babel">
@@ -276,7 +276,7 @@
       };
       // --- END OF PRIZE MODAL COMPONENT ---
 
-      // --- START OF APP COMPONENT (consolidated) ---
+      // --- START OF APP COMPONENT (consolidated from App.tsx) ---
       const InfoModal = ({ isOpen, onSave, onClose }) => {
         const [name, setName] = useState('');
         const [phone, setPhone] = useState('');
@@ -543,9 +543,8 @@
           // 2. User info is missing
           // 3. Global state hasn't loaded yet
           // 4. A global sync operation (like initial fetch or reset) is in progress
-          // 5. A save operation is already ongoing (via isSavingRemoteRef)
-          if (isSpinning || !userPhone || !userName || currentIndex === null || usedPhones === null || winnersList === null || isSyncing || isSavingRemoteRef.current) {
-              if (isSyncing || isSavingRemoteRef.current) showNotification('Aguarde a sincronização de dados...');
+          if (isSpinning || !userPhone || !userName || currentIndex === null || usedPhones === null || winnersList === null || isSyncing) {
+              if (isSyncing) showNotification('Aguarde a sincronização de dados...');
               return;
           }
 
@@ -584,7 +583,7 @@
                 setWinnersList(prev => [...(prev || []), {name: userName, phone: userPhone, prizeName: winningPrize.name}]);
             }
           }, SPIN_DURATION_MS + 200);
-        }, [isSpinning, userName, userPhone, currentIndex, usedPhones, winnersList, isSyncing, isSavingRemoteRef]); // Added isSavingRemoteRef to dependencies
+        }, [isSpinning, userName, userPhone, currentIndex, usedPhones, winnersList, isSyncing]);
 
         const handleSpinClick = () => {
           // Block spin if global state is not fully loaded/synced
@@ -592,7 +591,7 @@
             showNotification('Aguarde o carregamento dos dados da roleta...');
             return;
           }
-          if (isSyncing || isSavingRemoteRef.current) { // If an explicit global sync (fetch or reset) or a save is in progress
+          if (isSyncing) { // If an explicit global sync (fetch or reset) is in progress
             showNotification('Aguarde a sincronização de dados...');
             return;
           }
