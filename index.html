@@ -74,7 +74,7 @@
         { id: 6, name: 'SHADOWL 100%', emoji: '🏆' },
       ];
 
-      // PRIZES_SEQUENCE with numbers from 1 to 44 prefixed
+      // PRIZES_SEQUENCE with corrected numbers from 1 to 46
       const PRIZES_SEQUENCE = [
         '1 DESIGN 50%','2 DESIGN 50%','3 DESIGN 50%','4 DESIGN 50%','5 DESIGN 50%',
         '6 FIO A FIO 50%','7 FIO A FIO 50%','8 FIO A FIO 50%',
@@ -93,15 +93,9 @@
         '39 DESIGN 100%','40 DESIGN 100%','41 DESIGN 100%',
         '42 SHADOW L. 50%',
         '43 DESIGN 100%','44 DESIGN 100%',
-        '45 FIO A FIO 100%', // Adicionado para corresponder ao seu exemplo de 46 itens.
-        '46 SHADOWL 100%', // Adicionado para corresponder ao seu exemplo de 46 itens.
-        '47 FIO A FIO 100%' // Adicionado para corresponder ao seu exemplo de 46 itens.
+        '45 FIO A FIO 100%',
+        '46 SHADOWL 100%'
       ];
-
-      // OBS: A PRIZES_SEQUENCE original no seu código tinha 44 itens.
-      // O seu exemplo de reestruturação tinha 46. Ajustei para 47 para seguir a numeração contínua do seu último exemplo de "46 FIO A FIO 100%".
-      // Se a sequência de prêmios precisa ter um tamanho específico (e não apenas números de 1 a N),
-      // certifique-se de que o array PRIZES_SEQUENCE tenha a quantidade exata de elementos desejada.
 
       const SPIN_DURATION_MS = 4200;
       const OWNER_WHATSAPP = "5577981633924";
@@ -219,8 +213,8 @@
         if (!isOpen || !prize) return null;
 
         const handleWhatsAppShare = () => {
-          // prize.name já contém o número prefixado
-          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.name}\nNúmero do Giro: ${prizeSequenceNumber}\n📱 Telefone: ${userPhone}`; 
+          // Usamos prize.fullPrizeName para garantir que o nome do prêmio com o número da sequência apareça
+          const message = `🎉 Olá! Meu nome é ${userName} e eu ganhei na Roleta Premiada!\n🏆 Prêmio: ${prize.fullPrizeName}\nNúmero do Giro: ${prizeSequenceNumber}\n📱 Telefone: ${userPhone}`; 
           const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(message)}`;
           window.open(whatsappUrl, "_blank");
         };
@@ -231,7 +225,7 @@
               <p className="text-2xl text-gray-400 mb-2">Parabéns, {userName}!</p>
               <div className="text-8xl my-6 animate-bounce">{prize.emoji}</div>
               <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-400 mb-6" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
-                {prize.name}
+                {prize.fullPrizeName} {/* Usamos prize.fullPrizeName aqui */}
               </h2>
               {userName && userPhone && OWNER_WHATSAPP && (
                 <button onClick={handleWhatsAppShare} className="w-full px-6 py-3 mb-4 text-lg font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-300 flex items-center justify-center gap-2">
@@ -383,21 +377,23 @@
             return;
           }
           setIsSpinning(true);
-          const targetPrizeName = PRIZES_SEQUENCE[currentIndex % PRIZES_SEQUENCE.length];
-          const winningPrize = PRIZES.find(p => targetPrizeName.includes(p.name)); // Usar includes pois o nome do prêmio agora tem prefixo
-          const winningPrizeIndex = PRIZES_SEQUENCE.findIndex(p => p === targetPrizeName); // Encontrar o índice na sequência
+          const currentPrizeSequenceIndex = currentIndex % PRIZES_SEQUENCE.length;
+          const targetPrizeNameWithPrefix = PRIZES_SEQUENCE[currentPrizeSequenceIndex];
+          
+          // Extrai o nome base do prêmio (ex: "DESIGN 50%" de "1 DESIGN 50%")
+          const basePrizeName = targetPrizeNameWithPrefix.replace(/^\d+\s/, '');
+          const winningPrizeBase = PRIZES.find(p => p.name === basePrizeName);
 
-          if (!winningPrize || winningPrizeIndex < 0) {
-            console.error("Prêmio não encontrado ou índice inválido:", targetPrizeName);
+          // Encontra o índice do prêmio base na roleta visual (PRIZES) para a rotação
+          const prizeOnWheelIndex = PRIZES.findIndex(p => p.name === basePrizeName);
+
+          if (!winningPrizeBase || prizeOnWheelIndex < 0) {
+            console.error("Prêmio não encontrado ou índice inválido na lista PRIZES:", basePrizeName);
             setIsSpinning(false);
             return;
           }
           
           const segmentAngle = 360 / PRIZES.length;
-          // A lógica de winningAngle precisa ser ajustada se a roleta visual (PRIZES) não reflete a PRIZES_SEQUENCE
-          // Por enquanto, manteremos a lógica existente, mas tenha em mente que a 'sorte' na PRIZES_SEQUENCE
-          // pode não corresponder visualmente aos segmentos da roleta se PRIZES e PRIZES_SEQUENCE não estiverem 1:1
-          const prizeOnWheelIndex = PRIZES.findIndex(p => targetPrizeName.includes(p.name)); // Índice do prêmio na roleta visual
           const winningAngle = 360 - (prizeOnWheelIndex * segmentAngle + segmentAngle / 2);
           const randomRotations = 5 + Math.floor(Math.random() * 3);
           const finalRotation = 360 * randomRotations + winningAngle;
@@ -405,15 +401,16 @@
           setRotation(prev => prev + finalRotation);
 
           setTimeout(() => {
-            setWonPrize(winningPrize);
+            // Combina o objeto base do prêmio com o nome completo (com prefixo)
+            setWonPrize({ ...winningPrizeBase, fullPrizeName: targetPrizeNameWithPrefix });
             setIsSpinning(false);
             setCurrentIndex(prev => prev + 1);
             
             if (userPhone === ADMIN_PHONE) {
-              setWinnersList(prev => [...prev, {name: 'ADM TESTE', phone: userPhone, prizeName: targetPrizeName}]); // Salvar o nome completo com número
+              setWinnersList(prev => [...prev, {name: 'ADM TESTE', phone: userPhone, prizeName: targetPrizeNameWithPrefix}]); // Salva o nome completo com número
             } else {
                 setUsedPhones(prev => [...prev, userPhone]);
-                setWinnersList(prev => [...prev, {name: userName, phone: userPhone, prizeName: targetPrizeName}]); // Salvar o nome completo com número
+                setWinnersList(prev => [...prev, {name: userName, phone: userPhone, prizeName: targetPrizeNameWithPrefix}]); // Salva o nome completo com número
             }
           }, SPIN_DURATION_MS + 200);
         }, [isSpinning, userName, userPhone, usedPhones, currentIndex]);
