@@ -77,6 +77,9 @@
       const { useState, useCallback, useEffect, useRef } = React;
 
       // --- START OF TYPES ---
+      // Babel Standalone doesn't fully support TS type imports across files
+      // so these are redefined or simplified to work within a single script tag.
+      // In a multi-file setup with a build step, you would import these from types.ts
       interface Prize {
         id: number;
         name: string;
@@ -96,7 +99,7 @@
       // --- END OF TYPES ---
 
       // --- START OF CONSTANTS ---
-      const PRIZES: Prize[] = [
+      const PRIZES = [
         { id: 1, name: 'DESIGN 50%', emoji: '🎉' },
         { id: 2, name: 'FIO A FIO 50%', emoji: '✨' },
         { id: 3, name: 'SHADOW L. 50%', emoji: '💖' },
@@ -105,7 +108,7 @@
         { id: 6, name: 'SHADOWL 100%', emoji: '🏆' },
       ];
 
-      const PRIZES_SEQUENCE: string[] = [
+      const PRIZES_SEQUENCE = [
         'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%',
         'FIO A FIO 50%', 'FIO A FIO 50%', 'FIO A FIO 50%',
         'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%', 'DESIGN 50%',
@@ -396,7 +399,7 @@
             });
 
             if (!response.ok) {
-              const errorText = await response.text();
+              const errorText = await response.text(); // Capture detailed error message from response body
               throw new Error(`Erro ao buscar dados remotos: ${response.status} - ${errorText}`);
             }
 
@@ -435,7 +438,7 @@
             });
 
             if (!response.ok) {
-              const errorText = await response.text();
+              const errorText = await response.text(); // Capture detailed error message from response body
               throw new Error(`Erro ao salvar dados remotos: ${response.status} - ${errorText}`);
             }
             showNotification('Dados salvos no servidor.');
